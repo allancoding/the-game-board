@@ -346,7 +346,6 @@ function changecaucop1 () {
         Cx = true
     } else if (Cx == true) {
         Cx = false
-        C3 = true
         if (cacuop1 == true) {
             C = true
         } else {
@@ -395,9 +394,9 @@ input.onButtonPressed(Button.A, function () {
         } else if (cacul4 == true) {
             cacuvar4 += -1
         } else if (cacuop4 == true) {
-            changecaucop12()
+            resetcacu()
         } else if (cacul5 == true) {
-        	
+            resetcacu()
         }
         basic.clearScreen()
     }
@@ -612,21 +611,82 @@ input.onButtonPressed(Button.AB, function () {
             cacul1 = false
             cacuop1 = true
         } else if (cacuop1 == true) {
-        	
+            cacuop1 = false
+            cacuop2 = false
+            cacul2 = true
         } else if (cacul2 == true) {
-        	
+            cacul2 = false
+            cacuop2 = true
+            if (C == true) {
+                cacuvar2 = cacuvar1 + cacuvar2
+            } else if (C2 == true) {
+                cacuvar2 = cacuvar1 - cacuvar2
+            } else if (C3 == true) {
+                cacuvar2 = cacuvar1 / cacuvar2
+            } else if (Cx == true) {
+                cacuvar2 = cacuvar1 * cacuvar2
+            }
+            Cx = false
+            C = false
+            C2 = false
+            C3 = false
+            C4 = true
         } else if (cacuop2 == true) {
-        	
+            if (C4 == true) {
+                cacuvar5 = cacuvar2
+                cacul5 = true
+            } else {
+                cacul3 = true
+            }
+            cacuop2 = false
         } else if (cacul3 == true) {
-        	
+            cacul3 = false
+            if (C == true) {
+                cacuvar3 = cacuvar2 + cacuvar3
+            } else if (C2 == true) {
+                cacuvar3 = cacuvar2 - cacuvar3
+            } else if (C3 == true) {
+                cacuvar3 = cacuvar2 / cacuvar3
+            } else if (Cx == true) {
+                cacuvar3 = cacuvar2 * cacuvar3
+            }
+            Cx = false
+            C = false
+            C2 = false
+            C3 = false
+            C4 = true
+            cacuop3 = true
         } else if (cacuop3 == true) {
-        	
+            if (C4 == true) {
+                cacuvar5 = cacuvar3
+                cacul5 = true
+            } else {
+                cacul4 = true
+            }
+            cacuop3 = false
         } else if (cacul4 == true) {
-        	
+            if (C == true) {
+                cacuvar4 = cacuvar3 + cacuvar4
+            } else if (C2 == true) {
+                cacuvar4 = cacuvar3 - cacuvar4
+            } else if (C3 == true) {
+                cacuvar4 = cacuvar3 / cacuvar4
+            } else if (Cx == true) {
+                cacuvar4 = cacuvar3 * cacuvar4
+            }
+            C = false
+            C2 = false
+            C3 = false
+            Cx = false
+            C4 = true
+            cacul4 = false
+            cacuop4 = true
         } else if (cacuop4 == true) {
-        	
+            cacuop4 = false
+            cacuvar5 = cacuvar4
+            cacul5 = true
         } else if (cacul5 == true) {
-        	
+            resetcacu()
         }
         if (cacul11 == true) {
             cacul1 = true
@@ -671,9 +731,9 @@ input.onButtonPressed(Button.B, function () {
         } else if (cacul4 == true) {
             cacuvar4 += 1
         } else if (cacuop4 == true) {
-            changecaucop1()
+            resetcacu()
         } else if (cacul5 == true) {
-        	
+            resetcacu()
         }
         basic.clearScreen()
     }
@@ -701,6 +761,30 @@ radio.onReceivedMessage(RadioMessage.rock, function () {
         resetrps = true
     }
 })
+function resetcacu () {
+    basic.clearScreen()
+    startcacu = true
+    cacuvar1 = 0
+    cacuvar2 = 0
+    cacuvar3 = 0
+    cacuvar4 = 0
+    cacuvar5 = 0
+    cacul1 = false
+    cacul2 = false
+    cacul3 = false
+    cacul4 = false
+    cacul5 = false
+    cacuop1 = false
+    cacuop2 = false
+    cacuop3 = false
+    cacuop4 = false
+    cacul11 = true
+    Cx = false
+    C = true
+    C2 = false
+    C3 = false
+    C4 = false
+}
 function startg () {
     radio.sendMessage(RadioMessage.start)
     if (startgame == true) {
@@ -827,7 +911,7 @@ function changecaucop12 () {
         C3 = true
     } else if (C4 == true) {
         C4 = false
-        C = true
+        Cx = true
     }
 }
 let C4 = false
