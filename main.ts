@@ -1,9 +1,9 @@
 enum RadioMessage {
-    message1 = 49434,
     startgame = 3438,
     sis = 4150,
     rock = 22024,
     pap = 30648,
+    message1 = 49434,
     start = 56380
 }
 function maingame () {
@@ -50,8 +50,17 @@ function mainstartscr () {
             . # # . .
             . # # . .
             `)
+    } else if (pingpong == true) {
+        basic.showLeds(`
+            . . . . .
+            . . . # .
+            . . . . .
+            . . . . .
+            . # # . .
+            `)
     }
 }
+// startgame
 radio.onReceivedMessage(RadioMessage.startgame, function () {
     if (startgame2 == true) {
         startgame = false
@@ -325,6 +334,7 @@ function maincacu () {
         showcacuop()
     }
 }
+// start
 radio.onReceivedMessage(RadioMessage.start, function () {
     if (startscreen == true) {
         startgame = true
@@ -334,28 +344,6 @@ radio.onReceivedMessage(RadioMessage.start, function () {
         radio.sendMessage(RadioMessage.startgame)
     }
 })
-function changecaucop1 () {
-    if (C == true) {
-        C = false
-        C2 = true
-    } else if (C2 == true) {
-        C2 = false
-        C3 = true
-    } else if (C3 == true) {
-        C3 = false
-        Cx = true
-    } else if (Cx == true) {
-        Cx = false
-        if (cacuop1 == true) {
-            C = true
-        } else {
-            C4 = true
-        }
-    } else if (C4 == true) {
-        C4 = false
-        C = true
-    }
-}
 input.onButtonPressed(Button.A, function () {
     if (rungame == true) {
         if (rock == true) {
@@ -375,6 +363,9 @@ input.onButtonPressed(Button.A, function () {
             cacu = true
         } else if (cacu == true) {
             cacu = false
+            pingpong = true
+        } else if (pingpong == true) {
+            pingpong = false
             rps = true
         }
     }
@@ -399,6 +390,13 @@ input.onButtonPressed(Button.A, function () {
             resetcacu()
         }
         basic.clearScreen()
+    }
+    if (startpingpong == true) {
+        if (bar_x > 0) {
+            led.unplot(bar_x + 1, 4)
+            bar_x = bar_x - 1
+            led.plot(bar_x, 4)
+        }
     }
 })
 function showcacuop () {
@@ -529,6 +527,28 @@ function loadtic () {
         sendrps()
     }
 }
+function changecaucop12 () {
+    if (C == true) {
+        if (cacuop1 == true) {
+            Cx = true
+        } else {
+            C4 = true
+        }
+        C = false
+    } else if (C2 == true) {
+        C2 = false
+        C = true
+    } else if (C3 == true) {
+        C3 = false
+        C2 = true
+    } else if (Cx == true) {
+        Cx = false
+        C3 = true
+    } else if (C4 == true) {
+        C4 = false
+        Cx = true
+    }
+}
 function resetgamerps () {
     startscreen = false
     game2 = false
@@ -603,6 +623,8 @@ input.onButtonPressed(Button.AB, function () {
             startscreen = true
         } else if (cacu == true) {
             startcacu = true
+        } else if (pingpong == true) {
+            startpingpong = true
         }
     }
     if (startcacu == true) {
@@ -709,10 +731,13 @@ input.onButtonPressed(Button.B, function () {
     if (mainstartscreen == true) {
         if (rps == true) {
             rps = false
-            cacu = true
+            pingpong = true
         } else if (cacu == true) {
             cacu = false
             rps = true
+        } else if (pingpong == true) {
+            pingpong = false
+            cacu = true
         }
     }
     if (startcacu == true) {
@@ -736,6 +761,13 @@ input.onButtonPressed(Button.B, function () {
             resetcacu()
         }
         basic.clearScreen()
+    }
+    if (startpingpong == true) {
+        if (bar_x < 3) {
+            led.unplot(bar_x, 4)
+            bar_x = bar_x + 1
+            led.plot(bar_x + 1, 4)
+        }
     }
 })
 radio.onReceivedMessage(RadioMessage.rock, function () {
@@ -784,6 +816,72 @@ function resetcacu () {
     C2 = false
     C3 = false
     C4 = false
+}
+function pingpongg () {
+    point = 0
+    interval = 500
+    interval_step = 10
+    ball_x = 3
+    ball_y = 4
+    ball_dx = -1
+    ball_dy = -1
+    bar_x = 0
+    led.plot(ball_x, ball_y)
+    led.plot(bar_x, 4)
+    led.plot(bar_x + 1, 4)
+    in_game = true
+    while (in_game) {
+        if (ball_x + ball_dx > 4) {
+            ball_dx = ball_dx * -1
+        } else if (ball_x + ball_dx < 0) {
+            ball_dx = ball_dx * -1
+        }
+        if (ball_y + ball_dy < 0) {
+            ball_dy = ball_dy * -1
+        } else if (ball_y + ball_dy > 3) {
+            if (led.point(ball_x + ball_dx, ball_y + ball_dy)) {
+                ball_dy = ball_dy * -1
+                point = point + 1
+                if (interval - interval_step >= 0) {
+                    interval = interval - interval_step
+                }
+            } else {
+                in_game = false
+            }
+        }
+        if (in_game) {
+            led.plot(ball_x + ball_dx, ball_y + ball_dy)
+            led.unplot(ball_x, ball_y)
+            ball_x = ball_x + ball_dx
+            ball_y = ball_y + ball_dy
+            basic.pause(interval)
+        } else {
+            game.setScore(point)
+            game.gameOver()
+        }
+    }
+}
+function changecaucop1 () {
+    if (C == true) {
+        C = false
+        C2 = true
+    } else if (C2 == true) {
+        C2 = false
+        C3 = true
+    } else if (C3 == true) {
+        C3 = false
+        Cx = true
+    } else if (Cx == true) {
+        Cx = false
+        if (cacuop1 == true) {
+            C = true
+        } else {
+            C4 = true
+        }
+    } else if (C4 == true) {
+        C4 = false
+        C = true
+    }
 }
 function startg () {
     radio.sendMessage(RadioMessage.start)
@@ -892,28 +990,15 @@ function sisdw () {
         `)
     basic.clearScreen()
 }
-function changecaucop12 () {
-    if (C == true) {
-        if (cacuop1 == true) {
-            Cx = true
-        } else {
-            C4 = true
-        }
-        C = false
-    } else if (C2 == true) {
-        C2 = false
-        C = true
-    } else if (C3 == true) {
-        C3 = false
-        C2 = true
-    } else if (Cx == true) {
-        Cx = false
-        C3 = true
-    } else if (C4 == true) {
-        C4 = false
-        Cx = true
-    }
-}
+let in_game = false
+let ball_dy = 0
+let ball_dx = 0
+let ball_y = 0
+let ball_x = 0
+let interval_step = 0
+let interval = 0
+let point = 0
+let bar_x = 0
 let C4 = false
 let C3 = false
 let C2 = false
@@ -934,6 +1019,8 @@ let cacuvar4 = 0
 let cacuvar3 = 0
 let cacuvar2 = 0
 let cacuvar1 = 0
+let startpingpong = false
+let pingpong = false
 let cacu = false
 let rps = false
 let rungame2 = false
@@ -981,11 +1068,15 @@ resetrps = false
 rungame2 = false
 rps = false
 cacu = false
-let maintypeit = randint(0, 1)
+pingpong = false
+startpingpong = false
+let maintypeit = randint(0, 2)
 if (maintypeit == 0) {
     rps = true
 } else if (maintypeit == 1) {
     cacu = true
+} else if (maintypeit == 2) {
+    pingpong = true
 }
 if (typeit == 0) {
     rock = true
@@ -1148,5 +1239,9 @@ basic.forever(function () {
     }
     if (startcacu == true) {
         maincacu()
+    }
+    if (startpingpong == true) {
+        basic.clearScreen()
+        pingpongg()
     }
 })
