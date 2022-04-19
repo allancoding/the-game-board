@@ -58,6 +58,14 @@ function mainstartscr () {
             . . . . .
             . # # . .
             `)
+    } else if (mpingpong == true) {
+        basic.showLeds(`
+            . # . . .
+            # . # . #
+            . # . . .
+            . # . . .
+            . . # # .
+            `)
     }
 }
 // startgame
@@ -366,6 +374,9 @@ input.onButtonPressed(Button.A, function () {
             pingpong = true
         } else if (pingpong == true) {
             pingpong = false
+            mpingpong = true
+        } else if (mpingpong == true) {
+            mpingpong = false
             rps = true
         }
     }
@@ -391,7 +402,7 @@ input.onButtonPressed(Button.A, function () {
         }
         basic.clearScreen()
     }
-    if (startpingpong == true) {
+    if ((startpingpong || mstartpingpong) == true) {
         if (bar_x > 0) {
             led.unplot(bar_x + 1, 4)
             bar_x = bar_x - 1
@@ -576,6 +587,50 @@ function resetgamerps () {
         sis = true
     }
 }
+function mpingpongg () {
+    point = 0
+    interval = 500
+    interval_step = 10
+    ball_x = 3
+    ball_y = 4
+    ball_dx = -1
+    ball_dy = -1
+    bar_x = 0
+    led.plot(ball_x, ball_y)
+    led.plot(bar_x, 4)
+    led.plot(bar_x + 1, 4)
+    in_game = true
+    while (in_game) {
+        if (ball_x + ball_dx > 4) {
+            ball_dx = ball_dx * -1
+        } else if (ball_x + ball_dx < 0) {
+            ball_dx = ball_dx * -1
+        }
+        if (ball_y + ball_dy < 0) {
+            radio.sendValue("topball", ball_dy * -1)
+        } else if (ball_y + ball_dy > 3) {
+            if (led.point(ball_x + ball_dx, ball_y + ball_dy)) {
+                ball_dy = ball_dy * -1
+                point = point + 1
+                if (interval - interval_step >= 0) {
+                    interval = interval - interval_step
+                }
+            } else {
+                in_game = false
+            }
+        }
+        if (in_game) {
+            led.plot(ball_x + ball_dx, ball_y + ball_dy)
+            led.unplot(ball_x, ball_y)
+            ball_x = ball_x + ball_dx
+            ball_y = ball_y + ball_dy
+            basic.pause(interval)
+        } else {
+            game.setScore(point)
+            game.gameOver()
+        }
+    }
+}
 radio.onReceivedMessage(RadioMessage.pap, function () {
     if (rungame2 == true) {
         loadingtic = false
@@ -625,6 +680,8 @@ input.onButtonPressed(Button.AB, function () {
             startcacu = true
         } else if (pingpong == true) {
             startpingpong = true
+        } else if (mpingpong == true) {
+            mstartpingpong = true
         }
     }
     if (startcacu == true) {
@@ -731,13 +788,16 @@ input.onButtonPressed(Button.B, function () {
     if (mainstartscreen == true) {
         if (rps == true) {
             rps = false
-            pingpong = true
+            mpingpong = true
         } else if (cacu == true) {
             cacu = false
             rps = true
         } else if (pingpong == true) {
             pingpong = false
             cacu = true
+        } else if (mpingpong == true) {
+            mpingpong = false
+            pingpong = true
         }
     }
     if (startcacu == true) {
@@ -762,7 +822,7 @@ input.onButtonPressed(Button.B, function () {
         }
         basic.clearScreen()
     }
-    if (startpingpong == true) {
+    if ((startpingpong || mstartpingpong) == true) {
         if (bar_x < 3) {
             led.unplot(bar_x, 4)
             bar_x = bar_x + 1
@@ -817,6 +877,11 @@ function resetcacu () {
     C3 = false
     C4 = false
 }
+radio.onReceivedValue(function (name, value) {
+    if (name == "topball") {
+        ball_dy = value
+    }
+})
 function pingpongg () {
     point = 0
     interval = 500
@@ -1019,6 +1084,8 @@ let cacuvar4 = 0
 let cacuvar3 = 0
 let cacuvar2 = 0
 let cacuvar1 = 0
+let mstartpingpong = false
+let mpingpong = false
 let startpingpong = false
 let pingpong = false
 let cacu = false
@@ -1070,13 +1137,17 @@ rps = false
 cacu = false
 pingpong = false
 startpingpong = false
-let maintypeit = randint(0, 2)
+mpingpong = false
+mstartpingpong = false
+let maintypeit = randint(0, 3)
 if (maintypeit == 0) {
     rps = true
 } else if (maintypeit == 1) {
     cacu = true
 } else if (maintypeit == 2) {
     pingpong = true
+} else if (maintypeit == 3) {
+    mpingpong = true
 }
 if (typeit == 0) {
     rock = true
@@ -1243,5 +1314,9 @@ basic.forever(function () {
     if (startpingpong == true) {
         basic.clearScreen()
         pingpongg()
+    }
+    if (mstartpingpong == true) {
+        basic.clearScreen()
+        mpingpongg()
     }
 })
